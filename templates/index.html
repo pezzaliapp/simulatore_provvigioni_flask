@@ -2,33 +2,73 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulatore di Provvigioni</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Simulatore di Provvigioni</h1>
     <form action="/calcola" method="post">
         <label for="prezzo_listino">Prezzo di Listino (€):</label>
-        <input type="number" step="0.01" id="prezzo_listino" name="prezzo_listino" required><br><br>
+        <input type="number" step="0.01" id="prezzo_listino" name="prezzo_listino" required>
 
         <label for="sconto">Sconto (%):</label>
-        <input type="number" step="0.01" id="sconto" name="sconto" required><br><br>
+        <input type="number" step="0.01" id="sconto" name="sconto" required>
 
         <h3>Spese Aggiuntive</h3>
         <label for="costo_auto">Costo Auto Aziendale (€):</label>
-        <input type="number" step="0.01" id="costo_auto" name="costo_auto" value="500"><br><br>
+        <input type="number" step="0.01" id="costo_auto" name="costo_auto" value="500">
 
         <label for="costo_carburante">Spese Carburante (€):</label>
-        <input type="number" step="0.01" id="costo_carburante" name="costo_carburante" value="400"><br><br>
+        <input type="number" step="0.01" id="costo_carburante" name="costo_carburante" value="400">
 
         <label for="costo_telepass">Spese Telepass (€):</label>
-        <input type="number" step="0.01" id="costo_telepass" name="costo_telepass" value="100"><br><br>
+        <input type="number" step="0.01" id="costo_telepass" name="costo_telepass" value="100">
 
         <label for="contributo_fisso">Contributo Fisso al Venditore (€):</label>
-        <input type="number" step="0.01" id="contributo_fisso" name="contributo_fisso" value="1900"><br><br>
+        <input type="number" step="0.01" id="contributo_fisso" name="contributo_fisso" value="1900">
 
         <h3>Fatturato Stimato</h3>
         <label for="fatturato_stimato">Fatturato Mensile Stimato (€):</label>
-        <input type="number" step="0.01" id="fatturato_stimato" name="fatturato_stimato" value="10000"><br><br>
+        <input type="number" step="0.01" id="fatturato_stimato" name="fatturato_stimato" value="10000">
 
         <button type="submit">Calcola e Scarica Excel</button>
     </form>
