@@ -2,51 +2,40 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulatore di Provvigioni</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 40px;
             background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 500px;
         }
         h1 {
             text-align: center;
-            margin-bottom: 20px;
         }
-        label {
-            display: block;
-            margin-top: 10px;
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        input[type="number"], input[type="text"] {
+        input[type="number"], select {
             width: 100%;
             padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
+            margin: 10px 0;
             border-radius: 4px;
+            border: 1px solid #ccc;
         }
         button {
             width: 100%;
             padding: 10px;
-            margin-top: 20px;
             background-color: #28a745;
-            color: #fff;
+            color: white;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 16px;
+            cursor: pointer;
         }
         button:hover {
             background-color: #218838;
@@ -54,32 +43,28 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Simulatore di Provvigioni</h1>
-        <form method="POST" action="/calcola">
-            <label for="prezzo_listino">Prezzo di Listino (€):</label>
-            <input type="number" id="prezzo_listino" name="prezzo_listino" required>
 
-            <label for="sconto_applicato">Sconto da Applicare (%):</label>
-            <input type="number" id="sconto_applicato" name="sconto_applicato" required>
+<h1>Simulatore di Provvigioni</h1>
 
-            <label for="costo_auto">Costo Auto Aziendale (€):</label>
-            <input type="number" id="costo_auto" name="costo_auto" required>
+<form action="/calcola" method="post">
+    <label for="prezzo_listino">Prezzo di Listino (€):</label>
+    <input type="number" name="prezzo_listino" step="0.01" required>
 
-            <label for="costo_carburante">Spese Carburante (€):</label>
-            <input type="number" id="costo_carburante" name="costo_carburante" required>
+    <label for="sconto_applicato">Sconto da Applicare (%):</label>
+    <input type="number" name="sconto_applicato" step="0.01" required>
 
-            <label for="costo_telepass">Spese Telepass (€):</label>
-            <input type="number" id="costo_telepass" name="costo_telepass" required>
+    <label for="costi_totali">Costi Totali (€):</label>
+    <input type="number" name="costi_totali" step="0.01" required>
 
-            <label for="contributo_fisso">Contributo Fisso al Venditore (€):</label>
-            <input type="number" id="contributo_fisso" name="contributo_fisso" required>
+    <label for="mese">Seleziona il Mese:</label>
+    <select name="mese" required>
+        {% for mese in mesi %}
+            <option value="{{ mese }}">{{ mese.capitalize() }}</option>
+        {% endfor %}
+    </select>
 
-            <label for="fatturato_mensile">Fatturato Mensile Stimato (€):</label>
-            <input type="number" id="fatturato_mensile" name="fatturato_mensile" required>
+    <button type="submit">Calcola e Scarica Excel</button>
+</form>
 
-            <button type="submit">Calcola e Scarica Excel</button>
-        </form>
-    </div>
 </body>
 </html>
