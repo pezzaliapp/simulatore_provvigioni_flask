@@ -10,10 +10,18 @@ def index():
 
 @app.route('/calcola', methods=['POST'])
 def calcola():
+    # Dati inseriti dall'utente
     prezzo_listino = float(request.form['prezzo_listino'])
     sconto = float(request.form['sconto'])
+    costo_auto = float(request.form['costo_auto'])
+    costo_carburante = float(request.form['costo_carburante'])
+    costo_telepass = float(request.form['costo_telepass'])
+    contributo_fisso = float(request.form['contributo_fisso'])
+    fatturato_stimato = float(request.form['fatturato_stimato'])
+
     margine_lordo = 0.5  # Margine lordo standard
 
+    # Calcoli base
     prezzo_scontato = prezzo_listino * (1 - sconto / 100)
     margine_netto = prezzo_listino * margine_lordo - (prezzo_listino - prezzo_scontato)
 
@@ -28,9 +36,17 @@ def calcola():
         provvigione_percentuale = 0.03
 
     provvigione = prezzo_scontato * provvigione_percentuale
-    margine_azienda = margine_netto - provvigione
 
-    # Creazione DataFrame
+    # Calcolo delle spese totali
+    spese_totali = costo_auto + costo_carburante + costo_telepass + contributo_fisso
+
+    # Margine aziendale dopo spese e provvigioni
+    margine_azienda = margine_netto - provvigione - spese_totali
+
+    # Calcolo copertura costi rispetto al fatturato stimato
+    utile_netto = fatturato_stimato - (spese_totali + provvigione)
+
+    # Creazione DataFrame per Excel
     df = pd.DataFrame({
         'Prezzo Listino': [prezzo_listino],
         'Sconto (%)': [sconto],
@@ -38,7 +54,14 @@ def calcola():
         'Margine Netto': [margine_netto],
         'Provvigione (%)': [provvigione_percentuale * 100],
         'Provvigione (€)': [provvigione],
-        'Margine Azienda Netto': [margine_azienda]
+        'Spese Auto (€)': [costo_auto],
+        'Spese Carburante (€)': [costo_carburante],
+        'Spese Telepass (€)': [costo_telepass],
+        'Contributo Fisso (€)': [contributo_fisso],
+        'Spese Totali (€)': [spese_totali],
+        'Margine Azienda Netto': [margine_azienda],
+        'Fatturato Stimato (€)': [fatturato_stimato],
+        'Utile Netto (€)': [utile_netto]
     })
 
     # Salvataggio del file Excel in memoria
