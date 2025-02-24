@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, send_file
 import pandas as pd
-import io
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -10,67 +10,46 @@ def index():
 
 @app.route('/calcola', methods=['POST'])
 def calcola():
-    # Dati inseriti dall'utente
-    prezzo_listino = float(request.form['prezzo_listino'])
-    sconto = float(request.form['sconto'])
-    costo_auto = float(request.form['costo_auto'])
-    costo_carburante = float(request.form['costo_carburante'])
-    costo_telepass = float(request.form['costo_telepass'])
-    contributo_fisso = float(request.form['contributo_fisso'])
-    fatturato_stimato = float(request.form['fatturato_stimato'])
+    try:
+        # Recupero dei dati dal form
+        prezzo_listino = float(request.form.get('prezzo_listino', 0))
+        sconto_applicato = float(request.form.get('sconto_applicato', 0))
+        costo_auto = float(request.form.get('costo_auto', 0))
+        costo_carburante = float(request.form.get('costo_carburante', 0))
+        costo_telepass = float(request.form.get('costo_telepass', 0))
+        contributo_fisso = float(request.form.get('contributo_fisso', 0))
+        fatturato_mensile = float(request.form.get('fatturato_mensile', 0))
 
-    margine_lordo = 0.5  # Margine lordo standard
+        # Calcolo prezzo scontato
+        prezzo_scontato = prezzo_listino * (1 - sconto_applicato / 100)
 
-    # Calcoli base
-    prezzo_scontato = prezzo_listino * (1 - sconto / 100)
-    margine_netto = prezzo_listino * margine_lordo - (prezzo_listino - prezzo_scontato)
+        # Calcolo costi totali
+        costi_totali = costo_auto + costo_carburante + costo_telepass + contributo_fisso
 
-    # Calcolo provvigione basata sullo sconto
-    if sconto <= 30:
-        provvigione_percentuale = 0.10
-    elif sconto <= 40:
-        provvigione_percentuale = 0.07
-    elif sconto <= 50:
-        provvigione_percentuale = 0.05
-    else:
-        provvigione_percentuale = 0.03
+        # Calcolo fatturato minimo richiesto
+        fatturato_minimo = costi_totali / 0.3  # ipotizzando un margine del 30%
 
-    provvigione = prezzo_scontato * provvigione_percentuale
+        # Calcolo sconto massimo concedibile
+        sconto_massimo = 100 * (1 - (costi_totali / prezzo_listino))
 
-    # Calcolo delle spese totali
-    spese_totali = costo_auto + costo_carburante + costo_telepass + contributo_fisso
+        # Creazione del DataFrame per l'output Excel
+        dati = {
+            'Descrizione': ['Prezzo Listino', 'Prezzo Scontato', 'Sconto Applicato (%)', 'Costi Totali', 'Fatturato Minimo', 'Sconto Massimo Concedibile (%)'],
+            'Valore': [prezzo_listino, prezzo_scontato, sconto_applicato, costi_totali, fatturato_minimo, sconto_massimo]
+        }
+        df = pd.DataFrame(dati)
 
-    # Margine aziendale dopo spese e provvigioni
-    margine_azienda = margine_netto - provvigione - spese_totali
+        # Creazione del file Excel in memoria
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Calcoli')
+        output.seek(0)
 
-    # Calcolo copertura costi rispetto al fatturato stimato
-    utile_netto = fatturato_stimato - (spese_totali + provvigione)
+        # Invio del file Excel all'utente
+        return send_file(output, as_attachment=True, download_name='calcolo_provvigioni.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-    # Creazione DataFrame per Excel
-    df = pd.DataFrame({
-        'Prezzo Listino': [prezzo_listino],
-        'Sconto (%)': [sconto],
-        'Prezzo Scontato': [prezzo_scontato],
-        'Margine Netto': [margine_netto],
-        'Provvigione (%)': [provvigione_percentuale * 100],
-        'Provvigione (€)': [provvigione],
-        'Spese Auto (€)': [costo_auto],
-        'Spese Carburante (€)': [costo_carburante],
-        'Spese Telepass (€)': [costo_telepass],
-        'Contributo Fisso (€)': [contributo_fisso],
-        'Spese Totali (€)': [spese_totali],
-        'Margine Azienda Netto': [margine_azienda],
-        'Fatturato Stimato (€)': [fatturato_stimato],
-        'Utile Netto (€)': [utile_netto]
-    })
-
-    # Salvataggio del file Excel in memoria
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False)
-    output.seek(0)
-
-    return send_file(output, as_attachment=True, download_name="calcolo_provvigioni.xlsx", mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    except Exception as e:
+        return f"Errore durante il calcolo: {e}"
 
 if __name__ == '__main__':
     app.run(debug=True)
