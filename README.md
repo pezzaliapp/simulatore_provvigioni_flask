@@ -1,7 +1,3 @@
-Certo! Ti preparo un file README.md dettagliato per il progetto e ti spiegherò esattamente dove posizionarlo.
-
-📋 Contenuto del file README.md:
-
 # 📊 Simulatore di Provvigioni
 
 Questa applicazione Flask consente di calcolare provvigioni, margini e utile netto in base a diverse variabili come sconti applicati, spese aziendali e fatturato stimato.
